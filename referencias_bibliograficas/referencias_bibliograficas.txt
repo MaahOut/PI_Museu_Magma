@@ -1,0 +1,8 @@
+Referências Bibliográficas
+
+* Python e Django
+MACIEL, Francisco Marcelo de B. Python e Django. Rio de Janeiro: Editora Alta Books, 2020. E-book. p.282. ISBN 9786555200973. Disponível em: https://integrada.minhabiblioteca.com.br/reader/books/9786555200973/. Acesso em: 12 mar. 2025.
+
+
+*Tutorial Django
+https://docs.djangoproject.com/en/5.1/intro/tutorial01/
