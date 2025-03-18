@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Produtos</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Estilos personalizados -->
+    <style>
+        body {
+            background-color: #46729d;
+            padding: 20px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .col-md-4 {
+            display: flex;
+        }
+
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, z-index 0.3s ease, opacity 0.3s ease;
+            width: 100%; /* Garante que o cartão ocupe toda a largura da coluna */
+            display: flex;
+            flex-direction: column;
+            position: relative; /* Permite o uso de z-index */
+            z-index: 1; /* Ordem de empilhamento padrão */
+        }
+
+        .card.destaque {
+            transform: scale(1.2); /* Aumenta o tamanho do cartão */
+            z-index: 1000; /* Traz o cartão para frente de tudo */
+            position: fixed; /* Fixa o cartão na tela */
+            top: 50%; /* Centraliza verticalmente */
+            left: 50%; /* Centraliza horizontalmente */
+            transform: translate(-50%, -50%) scale(1.2); /* Centraliza e aumenta o tamanho */
+            opacity: 1; /* Garante que o cartão esteja totalmente visível */
+        }
+
+        .card-img-top {
+            height: 200px; /* Altura fixa para as imagens */
+            object-fit: cover;
+            cursor: pointer; /* Muda o cursor para indicar que a imagem é clicável */
+        }
+
+        .card-body {
+            flex: 1; /* Faz o corpo do cartão ocupar o espaço restante */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .card-text {
+            color: #0e1011;
+            flex: 1; /* Faz a descrição ocupar o espaço restante */
+            overflow-y: auto; /* Permite rolagem da descrição */
+            max-height: 100px; /* Altura máxima para a descrição */
+            margin-bottom: 10px; /* Espaço entre a descrição e o preço */
+        }
+
+        .card-text::-webkit-scrollbar {
+            width: 8px; /* Largura da barra de rolagem */
+        }
+
+        .card-text::-webkit-scrollbar-thumb {
+            background-color: #888; /* Cor do "puxador" da barra de rolagem */
+            border-radius: 4px;
+        }
+
+        .card-text::-webkit-scrollbar-track {
+            background-color: #f1f1f1; /* Cor do fundo da barra de rolagem */
+            border-radius: 4px;
+        }
+
+        .btn-group {
+            margin-top: 10px;
+        }
+
+        .btn-group .btn {
+            margin-right: 5px;
+        }
+
+        .filtros {
+            margin-bottom: 20px;
+        }
+
+        .filtros .form-select {
+            margin-right: 10px;
+        }
+
+        /* Estilo do modal para a imagem */
+        .modal-img {
+            max-width: 100%;
+            max-height: 80vh;
+            margin: 0 auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center my-5 text-white">Produtos</h1>
+
+        <!-- Filtros -->
+        <div class="filtros">
+            <select class="form-select" id="filtro-ordem">
+                <option value="preco_asc">Preço: Menor para Maior</option>
+                <option value="preco_desc">Preço: Maior para Menor</option>
+                <option value="nome_asc">Nome: A-Z</option>
+                <option value="nome_desc">Nome: Z-A</option>
+            </select>
+            <select class="form-select" id="filtro-estoque">
+                <option value="todos">Todos</option>
+                <option value="disponivel">Disponível</option>
+                <option value="indisponivel">Indisponível</option>
+            </select>
+        </div>
+
+        <!-- Lista de Produtos -->
+        <div class="row" id="lista-produtos">
+            {% for produto in produtos %}
+                <div class="col-md-4">
+                    <div class="card" ondblclick="destacarCard(this)">
+                        {% if produto.imagem %}
+                            <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}" onclick="abrirModal('{{ produto.imagem.url }}')">
+                        {% else %}
+                            <div class="card-img-top bg-light text-center py-5">
+                                <p class="text-muted">Sem imagem disponível.</p>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ produto.nome }}</h5>
+                            <p class="card-text">{{ produto.descricao }}</p>
+                            <p class="card-text"><strong>Preço:</strong> R$ {{ produto.preco }}</p>
+                            <p class="card-text"><strong>Disponibilidade:</strong> {{ produto.estoque }} unidades</p>
+                            <div class="btn-group">
+                                <button class="btn btn-primary" onclick="comprarProduto('{{ produto.nome }}')">Comprar</button>
+                                <button class="btn btn-secondary" onclick="verDetalhes('{{ produto.nome }}')">Mais Detalhes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Modal para a imagem -->
+    <div class="modal fade" id="modalImagem" tabindex="-1" aria-labelledby="modalImagemLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <img src="" class="modal-img" id="imagemModal">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS e dependências -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+    <!-- JavaScript para destacar o cartão, filtros, modal e funcionalidades -->
+    <script>
+        let cardDestacado = null; // Variável para armazenar o cartão destacado
+
+        function destacarCard(card) {
+            // Se já houver um cartão destacado, remove o destaque dele
+            if (cardDestacado) {
+                cardDestacado.classList.remove('destaque');
+            }
+
+            // Destaca o novo cartão
+            if (card !== cardDestacado) {
+                card.classList.add('destaque');
+                cardDestacado = card;
+            } else {
+                cardDestacado = null; // Remove o destaque se o mesmo cartão for clicado duas vezes
+            }
+        }
+
+        // Remove o destaque ao clicar fora do cartão
+        document.addEventListener('click', (event) => {
+            if (cardDestacado && !cardDestacado.contains(event.target)) {
+                cardDestacado.classList.remove('destaque');
+                cardDestacado = null;
+            }
+        });
+
+        // Filtros
+        const filtroOrdem = document.getElementById('filtro-ordem');
+        const filtroEstoque = document.getElementById('filtro-estoque');
+        const listaProdutos = document.getElementById('lista-produtos');
+
+        filtroOrdem.addEventListener('change', ordenarProdutos);
+        filtroEstoque.addEventListener('change', filtrarProdutos);
+
+        function ordenarProdutos() {
+            const ordem = filtroOrdem.value;
+            const produtos = Array.from(listaProdutos.children);
+
+            produtos.sort((a, b) => {
+                const precoA = parseFloat(a.querySelector('.card-text strong').nextSibling.textContent.trim());
+                const precoB = parseFloat(b.querySelector('.card-text strong').nextSibling.textContent.trim());
+                const nomeA = a.querySelector('.card-title').textContent.trim();
+                const nomeB = b.querySelector('.card-title').textContent.trim();
+
+                if (ordem === 'preco_asc') return precoA - precoB;
+                if (ordem === 'preco_desc') return precoB - precoA;
+                if (ordem === 'nome_asc') return nomeA.localeCompare(nomeB);
+                if (ordem === 'nome_desc') return nomeB.localeCompare(nomeA);
+                return 0;
+            });
+
+            listaProdutos.innerHTML = '';
+            produtos.forEach(produto => listaProdutos.appendChild(produto));
+        }
+
+        function filtrarProdutos() {
+            const filtro = filtroEstoque.value;
+            const produtos = Array.from(listaProdutos.children);
+
+            produtos.forEach(produto => {
+                const estoque = parseInt(produto.querySelector('.card-text strong').nextSibling.textContent.trim());
+                const disponivel = estoque > 0;
+
+                if (filtro === 'todos') {
+                    produto.style.display = 'flex';
+                } else if (filtro === 'disponivel' && disponivel) {
+                    produto.style.display = 'flex';
+                } else if (filtro === 'indisponivel' && !disponivel) {
+                    produto.style.display = 'flex';
+                } else {
+                    produto.style.display = 'none';
+                }
+            });
+        }
+
+        // Modal para a imagem
+        function abrirModal(src) {
+            const imagemModal = document.getElementById('imagemModal');
+            imagemModal.src = src;
+            const modal = new bootstrap.Modal(document.getElementById('modalImagem'));
+            modal.show();
+        }
+
+        // Funcionalidades dos botões
+        function comprarProduto(nome) {
+            alert(`Você comprou o produto: ${nome}`);
+        }
+
+        function verDetalhes(nome) {
+            alert(`Detalhes do produto: ${nome}`);
+        }
+    </script>
+</body>
+</html>
