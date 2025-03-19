@@ -11,6 +11,6 @@ urlpatterns = [
     path('', include('produto.urls')),  # Página inicial (index) da app produto
 ]
 
-# Configuração para servir arquivos de mídia durante o desenvolvimento
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

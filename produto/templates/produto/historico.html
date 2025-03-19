@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Estoque - {{ produto.nome }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center my-5">Histórico de Estoque - {{ produto.nome }}</h1>
+        <a href="{% url 'lista_produtos' %}" class="btn btn-secondary mb-3">Voltar</a>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Tipo</th>
+                    <th>Quantidade</th>
+                    <th>Valor Inicial</th>
+                    <th>Valor Final</th>
+                    <th>Preço Anterior</th>
+                    <th>Novo Preço</th>
+                    <th>Nome do Cliente</th>
+                    <th>CPF</th>
+                    <th>CNPJ</th>
+                    <th>Registro de Venda</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movimentacao in historico %}
+                    <tr>
+                        <td>{{ movimentacao.data_movimentacao }}</td>
+                        <td>{{ movimentacao.get_tipo_display }}</td>
+                        <td>{{ movimentacao.quantidade }}</td>
+                        <td>{{ movimentacao.valor_inicial_estoque }}</td>
+                        <td>{{ movimentacao.valor_final_estoque }}</td>
+                        <td>
+                            {% if movimentacao.preco_anterior %}
+                                R$ {{ movimentacao.preco_anterior }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if movimentacao.preco_novo %}
+                                R$ {{ movimentacao.preco_novo }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ movimentacao.nome_cliente|default:"-" }}</td>
+                        <td>{{ movimentacao.cpf_cliente|default:"-" }}</td>
+                        <td>{{ movimentacao.cnpj_cliente|default:"-" }}</td>
+                        <td>{{ movimentacao.registro_venda|default:"-" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

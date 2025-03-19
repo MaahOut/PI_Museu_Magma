@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,113 +8,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Estilos personalizados -->
-    <style>
-        body {
-            background-color: #46729d;
-            padding: 20px;
-        }
-
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .col-md-4 {
-            display: flex;
-        }
-
-        .card {
-            margin-bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, z-index 0.3s ease, opacity 0.3s ease;
-            width: 100%; /* Garante que o cartão ocupe toda a largura da coluna */
-            display: flex;
-            flex-direction: column;
-            position: relative; /* Permite o uso de z-index */
-            z-index: 1; /* Ordem de empilhamento padrão */
-        }
-
-        .card.destaque {
-            transform: scale(1.2); /* Aumenta o tamanho do cartão */
-            z-index: 1000; /* Traz o cartão para frente de tudo */
-            position: fixed; /* Fixa o cartão na tela */
-            top: 50%; /* Centraliza verticalmente */
-            left: 50%; /* Centraliza horizontalmente */
-            transform: translate(-50%, -50%) scale(1.2); /* Centraliza e aumenta o tamanho */
-            opacity: 1; /* Garante que o cartão esteja totalmente visível */
-        }
-
-        .card-img-top {
-            height: 200px; /* Altura fixa para as imagens */
-            object-fit: cover;
-            cursor: pointer; /* Muda o cursor para indicar que a imagem é clicável */
-        }
-
-        .card-body {
-            flex: 1; /* Faz o corpo do cartão ocupar o espaço restante */
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        .card-text {
-            color: #0e1011;
-            flex: 1; /* Faz a descrição ocupar o espaço restante */
-            overflow-y: auto; /* Permite rolagem da descrição */
-            max-height: 100px; /* Altura máxima para a descrição */
-            margin-bottom: 10px; /* Espaço entre a descrição e o preço */
-        }
-
-        .card-text::-webkit-scrollbar {
-            width: 8px; /* Largura da barra de rolagem */
-        }
-
-        .card-text::-webkit-scrollbar-thumb {
-            background-color: #888; /* Cor do "puxador" da barra de rolagem */
-            border-radius: 4px;
-        }
-
-        .card-text::-webkit-scrollbar-track {
-            background-color: #f1f1f1; /* Cor do fundo da barra de rolagem */
-            border-radius: 4px;
-        }
-
-        .btn-group {
-            margin-top: 10px;
-        }
-
-        .btn-group .btn {
-            margin-right: 5px;
-        }
-
-        .filtros {
-            margin-bottom: 20px;
-        }
-
-        .filtros .form-select {
-            margin-right: 10px;
-        }
-
-        /* Estilo do modal para a imagem */
-        .modal-img {
-            max-width: 100%;
-            max-height: 80vh;
-            margin: 0 auto;
-            display: block;
-        }
-
-        .estoque-baixo {
-            background-color: #f8d7da; /* Alerta de estoque baixo */
-            color: #721c24;
-            padding: 5px;
-            font-weight: bold;
-        }
-
-    </style>
+    <link href="{% static 'produto/css/styles.css' %}" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -159,10 +54,11 @@
                             {% endif %}
 
                             <div class="btn-group">
-                                <button class="btn btn-primary" onclick="comprarProduto('{{ produto.nome }}')">Comprar</button>
-                                <button class="btn btn-secondary" onclick="verDetalhes('{{ produto.nome }}')">Mais Detalhes</button>
-                                <button class="btn btn-warning" onclick="adicionarEstoque('{{ produto.nome }}')">Adicionar Estoque</button>
-                                <button class="btn btn-danger" onclick="removerEstoque('{{ produto.nome }}')">Remover Estoque</button>
+                                <button class="btn btn-success" onclick="abrirModalVenda('{{ produto.nome }}')">Registrar Venda</button>
+                                <a href="{% url 'ver_historico' produto.nome %}" class="btn btn-secondary">Ver Histórico</a>
+                                <button class="btn btn-warning" onclick="abrirModalEntrada('{{ produto.nome }}')">Entrada de Estoque</button>
+                                <button class="btn btn-info" onclick="abrirModalAjuste('{{ produto.nome }}')">Ajuste de Estoque</button>
+                                <button class="btn btn-primary" onclick="abrirModalAlterarPreco('{{ produto.nome }}')">Alterar Preço</button>
                             </div>
                         </div>
                     </div>
@@ -171,15 +67,119 @@
         </div>
     </div>
 
-    <!-- Modal para a imagem -->
-    <div class="modal fade" id="modalImagem" tabindex="-1" aria-labelledby="modalImagemLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <!-- Modais -->
+    <!-- Modal para Registrar Venda -->
+    <div class="modal fade" id="modalVenda" tabindex="-1" aria-labelledby="modalVendaLabel" aria-hidden="true">
+        <div class="modal-dialog">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalVendaLabel">Registrar Venda</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
                 <div class="modal-body">
-                    <img src="" class="modal-img" id="imagemModal">
+                    <form id="formVenda">
+                        <div class="mb-3">
+                            <label for="quantidadeVenda" class="form-label">Quantidade Vendida</label>
+                            <input type="number" class="form-control" id="quantidadeVenda" required min="1">
+                        </div>
+                        <div class="mb-3">
+                            <label for="nomeCliente" class="form-label">Nome do Cliente</label>
+                            <input type="text" class="form-control" id="nomeCliente">
+                        </div>
+                        <div class="mb-3">
+                            <label for="cpfCliente" class="form-label">CPF do Cliente</label>
+                            <input type="text" class="form-control" id="cpfCliente">
+                        </div>
+                        <div class="mb-3">
+                            <label for="cnpjCliente" class="form-label">CNPJ do Cliente</label>
+                            <input type="text" class="form-control" id="cnpjCliente">
+                        </div>
+                        <div class="mb-3">
+                            <label for="registroVenda" class="form-label">Registro de Venda</label>
+                            <input type="text" class="form-control" id="registroVenda">
+                        </div>
+                        <input type="hidden" id="produtoNomeVenda">
+                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" onclick="registrarVenda()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal para Entrada de Estoque -->
+    <div class="modal fade" id="modalEntrada" tabindex="-1" aria-labelledby="modalEntradaLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEntradaLabel">Entrada de Estoque</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEntrada">
+                        <div class="mb-3">
+                            <label for="quantidadeEntrada" class="form-label">Quantidade de Entrada</label>
+                            <input type="number" class="form-control" id="quantidadeEntrada" required min="1">
+                        </div>
+                        <input type="hidden" id="produtoNomeEntrada">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" onclick="registrarEntrada()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Ajuste de Estoque -->
+    <div class="modal fade" id="modalAjuste" tabindex="-1" aria-labelledby="modalAjusteLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAjusteLabel">Ajuste de Estoque</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAjuste">
+                        <div class="mb-3">
+                            <label for="quantidadeAjuste" class="form-label">Quantidade de Ajuste</label>
+                            <input type="number" class="form-control" id="quantidadeAjuste" required>
+                        </div>
+                        <input type="hidden" id="produtoNomeAjuste">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" onclick="registrarAjuste()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Alterar Preço -->
+    <div class="modal fade" id="modalAlterarPreco" tabindex="-1" aria-labelledby="modalAlterarPrecoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAlterarPrecoLabel">Alterar Preço</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAlterarPreco">
+                        <div class="mb-3">
+                            <label for="novoPreco" class="form-label">Novo Preço</label>
+                            <input type="number" step="0.01" class="form-control" id="novoPreco" required>
+                        </div>
+                        <input type="hidden" id="produtoNomePreco">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" onclick="alterarPreco()">Salvar</button>
                 </div>
             </div>
         </div>
@@ -188,41 +188,9 @@
     <!-- Bootstrap JS e dependências -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-
-    <!-- JavaScript para destacar o card -->
-    <script>
-        function destacarCard(card) {
-            // Adiciona a classe de destaque
-            card.classList.add('destaque');
-            setTimeout(function() {
-                // Remove a classe de destaque após 2 segundos
-                card.classList.remove('destaque');
-            }, 2000);
-        }
-
-        function abrirModal(imagemUrl) {
-            var modalImg = document.getElementById("imagemModal");
-            modalImg.src = imagemUrl;
-            var myModal = new bootstrap.Modal(document.getElementById("modalImagem"));
-            myModal.show();
-        }
-
-        function adicionarEstoque(nome) {
-            alert('Estoque adicionado para: ' + nome);
-        }
-
-        function removerEstoque(nome) {
-            alert('Estoque removido para: ' + nome);
-        }
-
-        function comprarProduto(nome) {
-            alert('Produto comprado: ' + nome);
-        }
-
-        function verDetalhes(nome) {
-            alert('Exibindo detalhes para: ' + nome);
-        }
-
-    </script>
+    <!-- JavaScript personalizado -->
+    <script src="{% static 'produto/js/scripts.js' %}"></script>
 </body>
 </html>
+
+
