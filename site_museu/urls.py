@@ -6,7 +6,6 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),  # Painel de administração do Django
     path('pedido/', include('pedido.urls')),  # URLs da app pedido
-    path('polls/', include('polls.urls')),  # URLs da app polls
     path('produto/', include('produto.urls')),  # URLs da app produto
     path('usuario/', include('usuario.urls')),  # URLs da app usuario
     path('', include('produto.urls')),  # Página inicial (index) da app produto
