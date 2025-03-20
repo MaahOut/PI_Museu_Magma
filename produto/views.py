@@ -98,6 +98,7 @@ def alterar_preco(request, nome):
             HistoricoEstoque.objects.create(
                 produto=produto,
                 tipo='alteracao_preco',
+                quantidade=0,
                 preco_anterior=preco_anterior,
                 preco_novo=novo_preco,
                 valor_inicial_estoque=produto.estoque,
