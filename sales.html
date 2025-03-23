@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="sales.css">
+    <title>Gestão de Vendas</title>
+
+
+</head>
+<header>
+    
+    <h1>Gestão de Vendas</h1>
+        <a href="./index.html">Gestao de estoque</a>
+
+</header>
+<body>
+    <div class="container">
+        
+            <form id="productForm">
+            <input type="text" id="productName" placeholder="Nome do Produto" required>
+            <input type="number" id="productQuantity" placeholder="Quantidade" required>
+            <input type="number" id="productPrice" placeholder="Preço" required>
+            <button typesubmit">Adicionar Produto</button>
+        </form>
+        <table id="productTable">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Quantidade</th>
+                    <th>Preço</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+    </div>
+    <script src="sales.js"></script>
+</body>
+</html>
