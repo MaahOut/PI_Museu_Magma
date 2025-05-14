@@ -1,0 +1,14 @@
+{
+  "constrói": [
+    {
+      "origem": "manage.py",
+      "usar": "@vercel/python"
+    }
+  ],
+  "rotas": [
+    {
+      "origem": "/(.*)",
+      "dest": "manage.py"
+    }
+  ]
+}
